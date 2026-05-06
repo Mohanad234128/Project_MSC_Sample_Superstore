@@ -1,4 +1,4 @@
-# 🛒 Project MSE — Sample Superstore Analysis
+# 🛒 Project MSC — Sample Superstore Analysis
 
 <div align="center">
 
@@ -53,14 +53,14 @@ This project transforms **9,994 raw transactional records** into a clean, query-
 ## 📁 Project Structure
 
 ```
-Project_MSE/
+Project_MSC/
 │
 ├── 📄 Sample_Superstore.csv           # Raw source data
 ├── 📄 CREATE_TABLES.sql               # Star schema DDL (database + all tables)
 ├── 📄 INSERT_DATA_IN_ALL_TABLES.sql   # ETL / data loading scripts
-├── 📄 SQL_Queries_Questions.sql       # 10+ analytical SQL queries
-├── 📊 Project_MSE.pbix                # Power BI dashboard
-├── 📁 assets/                         # Screenshots & diagrams
+├── 📄 SQL_Queries_Questions.sql       # 11 analytical SQL queries
+├── 📊 Project_MSC.pbix                # Power BI dashboard
+├── 📁 Assets/                         # Screenshots & diagrams
 └── 📄 README.md                       # This file
 ```
 
@@ -70,32 +70,7 @@ Project_MSE/
 
 The database follows a **Star Schema** design with **1 Fact table** and **6 Dimension tables**, built in Microsoft SQL Server.
 
-<!-- ➡️ Add your schema screenshot here after uploading to assets/ folder:
-![Star Schema Diagram](assets/star_schema.png)
--->
-
-```
-                    ┌─────────────────┐
-                    │  DIM_Customers  │
-                    │  Customer_ID PK │
-                    └────────┬────────┘
-                             │
-  ┌──────────────┐    ┌──────▼──────┐    ┌─────────────────┐
-  │ DIM_Products │    │ FACT_Sales  │    │  DIM_Location   │
-  │ Product_ID PK├────► Row_ID  PK  ◄────┤  Location_ID PK │
-  └──────────────┘    │             │    └─────────────────┘
-                      │ Order_ID    │
-  ┌──────────────┐    │ Sales       │    ┌─────────────────┐
-  │ DIM_Shipping │    │ Quantity    │    │ DIM_Order_Date  │
-  │ Ship_ID  PK  ├────► Discount    ◄────┤ Order_Date_ID PK│
-  └──────────────┘    │ Profit      │    └─────────────────┘
-                      └──────┬──────┘
-                             │
-                    ┌────────▼────────┐
-                    │  DIM_Ship_Date  │
-                    │  Ship_Date_ID PK│
-                    └─────────────────┘
-```
+![Star Schema Diagram](Assets/ERD_Diagram.png)
 
 ### Tables
 
@@ -120,7 +95,7 @@ The database follows a **Star Schema** design with **1 Fact table** and **6 Dime
 
 ## 🔍 SQL Analytical Queries
 
-10 queries covering a range of SQL techniques — from simple aggregations to CTEs and window functions.
+11 queries covering a range of SQL techniques — from simple aggregations to CTEs, window functions, and market basket analysis.
 
 | # | Business Question | SQL Techniques |
 |---|---|---|
@@ -134,39 +109,13 @@ The database follows a **Star Schema** design with **1 Fact table** and **6 Dime
 | 8 | **Regional Segment Analysis** — Sales & transactions by region + segment | Multi-column `GROUP BY`, `COUNT` |
 | 9 | **Order vs. Sub-Category Average** — High-value orders vs. their sub-category avg | Correlated subquery in `SELECT` |
 | 10 | **Yearly Top 3 Products** — Best-selling products per year | `CTE`, `ROW_NUMBER()`, `PARTITION BY` |
-
-### Sample Query — Yearly Top Products (Q10)
-
-```sql
-WITH Yearly_Product_Sales AS (
-    SELECT 
-        YEAR(od.Order_Date)  AS Sales_Year,
-        p.Product_Name,
-        SUM(f.Sales)         AS Total_Sales,
-        ROW_NUMBER() OVER (
-            PARTITION BY YEAR(od.Order_Date) 
-            ORDER BY SUM(f.Sales) DESC
-        )                    AS Rank
-    FROM FACT_Sales f
-    JOIN DIM_Products    p  ON f.Product_ID    = p.Product_ID
-    JOIN DIM_Order_Date  od ON f.Order_Date_ID = od.Order_Date_ID
-    GROUP BY YEAR(od.Order_Date), p.Product_Name
-)
-SELECT Sales_Year, Product_Name, Total_Sales, Rank
-FROM   Yearly_Product_Sales
-WHERE  Rank <= 3
-ORDER  BY Sales_Year DESC, Rank ASC;
-```
-
-<!-- ➡️ Add your query result screenshot here after uploading to assets/ folder:
-![Q10 Result](assets/query_results/q10_yearly_top_products.png)
--->
+| 11 | **Market Basket Analysis** — Product pairs bought together frequently | Self `JOIN`, `CTE`, co-occurrence count |
 
 ---
 
 ## 📈 Power BI Dashboard
 
-The `Project_MSE.pbix` file connects directly to the SQL Server database and includes visuals covering:
+The `Project_MSC.pbix` file connects directly to the SQL Server database and includes visuals covering:
 
 - 📅 Sales & Profit trends over time (2014–2017)
 - 📦 Category & Sub-Category performance breakdown
@@ -174,10 +123,14 @@ The `Project_MSE.pbix` file connects directly to the SQL Server database and inc
 - 👤 Customer analysis — VIP vs. loss-making customers
 - 🚚 Shipping efficiency by ship mode
 
-<!-- ➡️ Add your Power BI screenshots here after uploading to assets/ folder:
-![Dashboard Overview](assets/dashboard_overview.png)
-![Regional Analysis](assets/dashboard_regional.png)
--->
+### Overview Page
+![Dashboard Overview](Assets/Overview_Page.png)
+
+### Product Analysis
+![Product Analysis](Assets/Product_Page.png)
+
+### Customer Analysis
+![Customer Analysis](Assets/Customer_Page.png)
 
 ---
 
@@ -198,7 +151,7 @@ CREATE_TABLES.sql
 
 **2. Import the raw CSV as a staging table**
 
-Import `Sample_Superstore.csv` into SQL Server as a flat table named `Sample_Superstore` inside the `Project_MSE` database.
+Import `Sample_Superstore.csv` into SQL Server as a flat table named `Sample_Superstore` inside the `Project_MSC` database.
 
 > Use SSMS → Right-click database → *Tasks → Import Flat File*, or use `BULK INSERT`.
 
@@ -216,7 +169,7 @@ SQL_Queries_Questions.sql
 
 **5. Open the Power BI Dashboard**
 
-Open `Project_MSE.pbix` in Power BI Desktop → Update the data source to your SQL Server instance → Refresh.
+Open `Project_MSC.pbix` in Power BI Desktop → Update the data source to your SQL Server instance → Refresh.
 
 ---
 
